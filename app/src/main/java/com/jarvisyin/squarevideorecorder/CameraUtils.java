@@ -21,8 +21,6 @@ import android.hardware.Camera;
 import android.util.Log;
 import android.view.Surface;
 
-import com.hepai.vshop.Common.Library.Utils.VShopLog;
-
 import java.util.List;
 
 /**
@@ -40,19 +38,10 @@ public class CameraUtils {
      * https://github.com/commonsguy/cwac-camera/blob/master/camera/src/com/commonsware/cwac/camera/CameraUtils.java
      */
     public static void choosePreviewSize(Camera.Parameters parms, int width, int height) {
-        // We should make sure that the requested MPEG size is less than the preferred
-        // size, and has the same aspect ratio.
-        /*Camera.Size ppsfv = parms.getPreferredPreviewSizeForVideo();
-        if (ppsfv != null) {
-            Log.d(TAG, "Camera preferred preview size for video is " +
-                    ppsfv.width + "x" + ppsfv.height);
-        }*/
-
-        //for (Camera.Size size : parms.getSupportedPreviewSizes()) {
-        //    Log.d(TAG, "supported: " + size.width + "x" + size.height);
-        //}
-
         List<Camera.Size> pa = parms.getSupportedPreviewSizes();
+
+        if (pa == null || pa.isEmpty()) return;
+
         for (Camera.Size size : pa) {
             if (size.width == width && size.height == height) {
                 parms.setPreviewSize(width, height);
@@ -60,26 +49,24 @@ public class CameraUtils {
             }
         }
 
-        int w = -1;
-        int h = -1;
+        int w = pa.get(0).width;
+        int h = pa.get(0).height;
         for (Camera.Size size : pa) {
             if (size.width < width || size.height < height) {
                 continue;
             }
 
-            if (size.width * size.height < w * h || w < 0) {
+            if (size.width < width || size.height < height) {
+                continue;
+            }
+
+            if (size.width * size.height < w * h) {
                 w = size.width;
                 h = size.height;
             }
         }
 
-        if (w > width || h > height)
-            parms.setPreviewSize(w, h);
-        /*Log.w(TAG, "Unable to set preview size to " + width + "x" + height);
-        if (ppsfv != null) {
-            parms.setPreviewSize(ppsfv.width, ppsfv.height);
-        }*/
-        // else use whatever the default size is
+        parms.setPreviewSize(w, h);
     }
 
     /**
@@ -142,7 +129,7 @@ public class CameraUtils {
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
         }
-        VShopLog.d(TAG, "Orientation = " + result);
+        Log.i(TAG, "Orientation = " + result);
         camera.setDisplayOrientation(result);
         return result;
     }
