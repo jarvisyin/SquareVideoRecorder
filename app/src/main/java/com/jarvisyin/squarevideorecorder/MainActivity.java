@@ -13,6 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.jarvisyin.squarevideorecorder.Gles.CameraUtils;
+import com.jarvisyin.squarevideorecorder.Gles.Drawable2d;
+import com.jarvisyin.squarevideorecorder.Gles.EglCore;
+import com.jarvisyin.squarevideorecorder.Gles.FullFrameRect;
+import com.jarvisyin.squarevideorecorder.Gles.Texture2dProgram;
+import com.jarvisyin.squarevideorecorder.Gles.WindowSurface;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final static String TAG = "MainActivity";
@@ -23,14 +30,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int mCameraPreviewThousandFps;
 
-    private Camera mCamera;
-
-    private SurfaceCallback mSurfaceCallback;
-
-    private SurfaceView surfaceView;
     private Button btnRecord;
 
+    private SurfaceView surfaceView;
+    private SurfaceCallback mSurfaceCallback;
+
+    private Camera mCamera;
+
+    private CircularEncoder mCircEncoder;
+    private WindowSurface mEncoderSurface;
+
+    private FileInfo mFileInfo = new FileInfo();
+
     private final Handler mHandler = new Handler();
+
+    private boolean isRecording = false;
+    private AudioRecord mAudioRecord;
+    private MuxerAudioVideo mMuxerAudioVideo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,18 +59,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btnRecord = (Button) findViewById(R.id.record);
         btnRecord.setOnClickListener(this);
+
+        mAudioRecord = new AudioRecord();
+        mMuxerAudioVideo = new MuxerAudioVideo();
     }
 
     @Override
     public void onClick(View v) {
+        if (isRecording) {
+            stopRecord();
+        } else {
+            startRecord();
+        }
+    }
 
+    private void startRecord() {
+        try {
+            mAudioRecord.prepare(mFileInfo.getAudioFile().getPath());
+            mAudioRecord.start();
+
+            mCircEncoder = new CircularEncoder(WIDTH, HEIGHT, 1024000, mCameraPreviewThousandFps / 1000, mEncoderCallback, mFileInfo.getVideoFile());
+            mEncoderSurface = new WindowSurface(mSurfaceCallback.mEglCore, mCircEncoder.getInputSurface(), true);
+
+            btnRecord.setText("stop");
+            isRecording = true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Unable to record", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void stopRecord() {
+        try {
+            mAudioRecord.stop();
+            mCircEncoder.saveVideo();
+
+            btnRecord.setText("record");
+            isRecording = false;
+
+            mMuxerAudioVideo.setFileInfo(mFileInfo);
+            mMuxerAudioVideo.start();
+
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, "Unable to record", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         openCamera();
-
     }
 
     @Override
@@ -83,13 +139,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mCamera.open();
         }
 
-
         if (mCamera == null) {
             //打开摄像头失败
             Toast.makeText(this, "Unable to open camera", Toast.LENGTH_LONG).show();
             return;
         }
-
 
         Camera.Parameters parameters = mCamera.getParameters();
 
@@ -97,7 +151,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //   此处筛选出最接近正方形边长的摄像头尺寸,但尺寸的长宽不能小于正方形边长
         //   note:此处有BUG,有时候我们获取的摄像头尺寸与其实际尺寸不符,
         //        比如说:我们获取到960*740的摄像头,但显示在SurfaceView的图像,长宽比却不是960/740
-        //   CameraUtils.choosePreviewSize(parameters, WIDTH, HEIGHT);
+        //
+        //   这里可以尝试以下不同机型不同摄像头尺寸所展示的效果
+        //        在红米1s中有多个尺寸的摄像头变形,集中在尺寸较小的摄像头中.
+        CameraUtils.choosePreviewSize(parameters, WIDTH, HEIGHT);
 
         //3. 尝试设置特定的帧率
         mCameraPreviewThousandFps = CameraUtils.chooseFixedPreviewFps(parameters, DESIRED_PREVIEW_FPS);
@@ -131,9 +188,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
-
     }
 
+    private CircularEncoder.Callback mEncoderCallback = new CircularEncoder.Callback() {
+        @Override
+        public void fileSaveComplete(int status) {
+            Toast.makeText(MainActivity.this, "录制成功", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void bufferStatus(long totalTimeMsec) {
+
+        }
+    };
 
     private class SurfaceCallback implements SurfaceHolder.Callback {
 
@@ -230,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             private void drawFrame() {
-                //Log.d(TAG, "drawFrame");
                 if (mEglCore == null) {
                     Log.d(TAG, "Skipping drawFrame after shutdown");
                     return;
@@ -249,16 +315,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mFullFrameBlit.drawFrame(mTextureId, mTmpMatrix);
                 mDisplaySurface.swapBuffers();
 
-                //TODO Send it to the video encoder.
-                /*if (!mFileSaveInProgress && isRecording) {
+                if (isRecording) {
                     mEncoderSurface.makeCurrent();
-                    GLES20.glViewport(0, 0, VIDEO_HEIGHT, VIDEO_WIDTH);
+                    GLES20.glViewport(0, 0, WIDTH, HEIGHT);
                     mFullFrameBlit.drawFrame(mTextureId, mTmpMatrix);
                     mCircEncoder.frameAvailableSoon();
                     mEncoderSurface.setPresentationTime(mCameraTexture.getTimestamp());
                     mEncoderSurface.swapBuffers();
-                }*/
-                //mFrameNum++;
+                }
             }
         }
     }

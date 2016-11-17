@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Gles;
 
 /**
  * This class essentially represents a viewport-sized sprite that will be rendered with
@@ -49,7 +49,7 @@ public class FullFrameRect {
      */
     public void drawFrame(int textureId, float[] texMatrix) {
         // Use the identity matrix for MVP so our 2x2 FULL_RECTANGLE covers the viewport.
-        mProgram.draw(GlUtil.IDENTITY_MATRIX, mRectDrawable.getVertexArray(), 0,
+        mProgram.draw(ShaderUtils.IDENTITY_MATRIX, mRectDrawable.getVertexArray(), 0,
                 mRectDrawable.getVertexCount(), mRectDrawable.getCoordsPerVertex(),
                 mRectDrawable.getVertexStride(),
                 texMatrix, mRectDrawable.getTexCoordArray(), textureId,

@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Gles;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;

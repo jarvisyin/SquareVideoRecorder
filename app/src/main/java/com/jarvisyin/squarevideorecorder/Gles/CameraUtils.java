@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Gles;
 
 import android.app.Activity;
 import android.hardware.Camera;
@@ -39,6 +39,15 @@ public class CameraUtils {
      */
     public static void choosePreviewSize(Camera.Parameters parms, int width, int height) {
         List<Camera.Size> pa = parms.getSupportedPreviewSizes();
+
+        //移除黑名单分辨率
+        for (int i = pa.size() - 1; i >= 0; i--) {
+            Camera.Size size = pa.get(i);
+            if (size.width == 960 && size.height == 720) {
+                pa.remove(i);
+                break;
+            }
+        }
 
         if (pa == null || pa.isEmpty()) return;
 

@@ -1,14 +1,22 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Gles;
 
 /**
  * Created by jarvisyin on 16/11/17.
  */
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.jarvisyin.squarevideorecorder.AppContext;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -16,7 +24,7 @@ import java.nio.FloatBuffer;
 /**
  * Some OpenGL utility functions.
  */
-public class GlUtil {
+public class ShaderUtils {
     public static final String TAG = "Grafika";
 
     /** Identity matrix for general use.  Don't modify or life will get weird. */
@@ -29,7 +37,7 @@ public class GlUtil {
     private static final int SIZEOF_FLOAT = 4;
 
 
-    private GlUtil() {}     // do not instantiate
+    private ShaderUtils() {}     // do not instantiate
 
     /**
      * Creates a new program from the supplied vertex and fragment shaders.
@@ -127,7 +135,7 @@ public class GlUtil {
 
         GLES20.glGenTextures(1, textureHandles, 0);
         textureHandle = textureHandles[0];
-        GlUtil.checkGlError("glGenTextures");
+        ShaderUtils.checkGlError("glGenTextures");
 
         // Bind the texture handle to the 2D texture target.
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle);
@@ -138,12 +146,12 @@ public class GlUtil {
                 GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
                 GLES20.GL_LINEAR);
-        GlUtil.checkGlError("loadImageTexture");
+        ShaderUtils.checkGlError("loadImageTexture");
 
         // Load the data from the buffer into the texture handle.
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, /*level*/ 0, format,
                 width, height, /*border*/ 0, format, GLES20.GL_UNSIGNED_BYTE, data);
-        GlUtil.checkGlError("loadImageTexture");
+        ShaderUtils.checkGlError("loadImageTexture");
 
         return textureHandle;
     }
@@ -179,5 +187,47 @@ public class GlUtil {
                 Log.i(TAG, "iversion: " + majorVersion + "." + minorVersion);
             }
         }
+    }
+
+    //从sh脚本中加载shader内容的方法
+    public static String loadFromAssetsFile(String fname) {
+        String result = null;
+        Resources r = AppContext.getApp().getResources();
+        try {
+            InputStream in = r.getAssets().open(fname);
+            int ch = 0;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            while ((ch = in.read()) != -1) {
+                baos.write(ch);
+            }
+            byte[] buff = baos.toByteArray();
+            baos.close();
+            in.close();
+            result = new String(buff, "UTF-8");
+            result = result.replaceAll("\\r\\n", "\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static int loadTexture(int resourceId) {
+        final int[] textureHandle = new int[1];
+        GLES20.glGenTextures(1, textureHandle, 0);
+        if (textureHandle[0] != 0) {
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            final Bitmap bitmap = BitmapFactory.decodeResource(AppContext.getApp().getResources(), resourceId, options);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+            bitmap.recycle();
+        }
+
+        if (textureHandle[0] == 0) {
+            throw new RuntimeException("failed to load texture");
+        }
+        return textureHandle[0];
     }
 }

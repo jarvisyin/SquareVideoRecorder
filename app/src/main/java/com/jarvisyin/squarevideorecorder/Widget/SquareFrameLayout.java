@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Widget;
 
 import android.content.Context;
 import android.util.AttributeSet;

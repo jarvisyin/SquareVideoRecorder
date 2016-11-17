@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Gles;
 
 /**
  * Created by jarvisyin on 16/11/17.
@@ -50,7 +50,7 @@ public class Drawable2d {
      * <p/>
      * Does no EGL/GL operations, so this can be done at any time.
      */
-    private Drawable2d() {
+    public Drawable2d() {
     }
 
     /**
@@ -152,8 +152,6 @@ public class Drawable2d {
         } else {
             float p = height * 1f / width;
 
-            Log.i(TAG, "p = " + p );
-
             //A
             FULL_RECTANGLE_COORDS[0] = -1.0f;
             FULL_RECTANGLE_COORDS[1] = -p;
@@ -172,6 +170,26 @@ public class Drawable2d {
 
         }
 
+        /*
+        //A
+        FULL_RECTANGLE_COORDS[0] /= 2;
+        FULL_RECTANGLE_COORDS[1]  /= 2;
+
+        //B
+        FULL_RECTANGLE_COORDS[2]  /= 2;
+        FULL_RECTANGLE_COORDS[3]  /= 2;
+
+        //C
+        FULL_RECTANGLE_COORDS[4]  /= 2;
+        FULL_RECTANGLE_COORDS[5] /= 2;
+
+        //D
+        FULL_RECTANGLE_COORDS[6]  /= 2;
+        FULL_RECTANGLE_COORDS[7]  /= 2;
+        */
+
+
+
         float FULL_RECTANGLE_TEX_COORDS[] = {
                 0.0f, 0.0f,     // 0 bottom left
                 1.0f, 0.0f,     // 1 bottom right
@@ -179,8 +197,8 @@ public class Drawable2d {
                 1.0f, 1.0f      // 3 top right
         };
 
-        mVertexArray = GlUtil.createFloatBuffer(FULL_RECTANGLE_COORDS);
-        mTexCoordArray = GlUtil.createFloatBuffer(FULL_RECTANGLE_TEX_COORDS);
+        mVertexArray = ShaderUtils.createFloatBuffer(FULL_RECTANGLE_COORDS);
+        mTexCoordArray = ShaderUtils.createFloatBuffer(FULL_RECTANGLE_TEX_COORDS);
 
         mCoordsPerVertex = 2;
         mVertexStride = mCoordsPerVertex * SIZEOF_FLOAT;
