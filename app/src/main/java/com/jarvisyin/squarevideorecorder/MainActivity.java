@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -19,20 +20,18 @@ import com.jarvisyin.squarevideorecorder.Gles.EglCore;
 import com.jarvisyin.squarevideorecorder.Gles.FullFrameRect;
 import com.jarvisyin.squarevideorecorder.Gles.Texture2dProgram;
 import com.jarvisyin.squarevideorecorder.Gles.WindowSurface;
+import com.jarvisyin.squarevideorecorder.Widget.VideoProgressBar;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnTouchListener {
 
     private final static String TAG = "MainActivity";
 
-    private final static int WIDTH = 640;
-    private final static int HEIGHT = 640;
-    private final static int DESIRED_PREVIEW_FPS = 30 * 1000;
 
     private int mCameraPreviewThousandFps;
 
     private Button btnRecord;
 
-    private SurfaceView surfaceView;
+    private SurfaceView mSurfaceView;
     private SurfaceCallback mSurfaceCallback;
 
     private Camera mCamera;
@@ -40,50 +39,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CircularEncoder mCircEncoder;
     private WindowSurface mEncoderSurface;
 
-    private FileInfo mFileInfo = new FileInfo();
+    private final RecordContext mRecordContext = new RecordContext();
 
     private final Handler mHandler = new Handler();
 
     private boolean isRecording = false;
     private AudioRecord mAudioRecord;
     private MuxerAudioVideo mMuxerAudioVideo;
+    private VideoProgressBar mVideoProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
         mSurfaceCallback = new SurfaceCallback();
-        surfaceView.getHolder().addCallback(mSurfaceCallback);
+        mSurfaceView.getHolder().addCallback(mSurfaceCallback);
 
         btnRecord = (Button) findViewById(R.id.record);
-        btnRecord.setOnClickListener(this);
+        btnRecord.setOnTouchListener(this);
+
+        mVideoProgressBar = (VideoProgressBar) findViewById(R.id.video_progress_bar);
+        mVideoProgressBar.setRecordContext(mRecordContext);
 
         mAudioRecord = new AudioRecord();
         mMuxerAudioVideo = new MuxerAudioVideo();
     }
 
     @Override
-    public void onClick(View v) {
-        if (isRecording) {
-            stopRecord();
-        } else {
-            startRecord();
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                startRecord();
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                stopRecord();
+                break;
         }
+        return false;
     }
 
     private void startRecord() {
+        if (isRecording)
+            return;
+
+        if (mRecordContext.getCurrentWholeTimeSpan() > mRecordContext.wholeTimeSpan)
+            return;
+
         try {
-            mAudioRecord.prepare(mFileInfo.getAudioFile().getPath());
+            BlockInfo blockInfo = mRecordContext.createFileInfo();
+            mAudioRecord.prepare(blockInfo.getAudioFile().getPath());
             mAudioRecord.start();
 
-            mCircEncoder = new CircularEncoder(WIDTH, HEIGHT, 1024000, mCameraPreviewThousandFps / 1000, mEncoderCallback, mFileInfo.getVideoFile());
+            mCircEncoder = new CircularEncoder(
+                    mRecordContext.DESIRED_WIDTH,
+                    mRecordContext.DESIRED_HEIGHT,
+                    mRecordContext.DESIRED_BIT_RATE,
+                    mCameraPreviewThousandFps / 1000,
+                    mEncoderCallback,
+                    blockInfo);
             mEncoderSurface = new WindowSurface(mSurfaceCallback.mEglCore, mCircEncoder.getInputSurface(), true);
 
-            btnRecord.setText("stop");
             isRecording = true;
-
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Unable to record", Toast.LENGTH_LONG).show();
@@ -91,17 +110,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void stopRecord() {
+        if (!isRecording)
+            return;
+
         try {
             mAudioRecord.stop();
             mCircEncoder.saveVideo();
 
-            btnRecord.setText("record");
             isRecording = false;
 
-            mMuxerAudioVideo.setFileInfo(mFileInfo);
+            mMuxerAudioVideo.setFileInfo(mRecordContext.getLastFileInfo());
             mMuxerAudioVideo.start();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Unable to record", Toast.LENGTH_LONG).show();
         }
@@ -154,10 +175,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //
         //   这里可以尝试以下不同机型不同摄像头尺寸所展示的效果
         //        在红米1s中有多个尺寸的摄像头变形,集中在尺寸较小的摄像头中.
-        CameraUtils.choosePreviewSize(parameters, WIDTH, HEIGHT);
+        CameraUtils.choosePreviewSize(parameters, mRecordContext.DESIRED_WIDTH, mRecordContext.DESIRED_HEIGHT);
 
         //3. 尝试设置特定的帧率
-        mCameraPreviewThousandFps = CameraUtils.chooseFixedPreviewFps(parameters, DESIRED_PREVIEW_FPS);
+        mCameraPreviewThousandFps = CameraUtils.chooseFixedPreviewFps(parameters, mRecordContext.DESIRED_PREVIEW_FPS);
 
         //4. 告知摄像头,应用将要录影,能改善帧率
         parameters.setRecordingHint(true);
@@ -197,8 +218,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
-        public void bufferStatus(long totalTimeMsec) {
+        public void bufferStatus(long totalTimeMsec, int frameNum) {
+            getWindow().getDecorView().getHandler().post(refreshProgressBar);
+            if (mRecordContext.getCurrentWholeTimeSpan() > mRecordContext.wholeTimeSpan) {
+                stopRecord();
+            }
 
+        }
+    };
+
+    private Runnable refreshProgressBar = new Runnable() {
+        @Override
+        public void run() {
+            mVideoProgressBar.invalidate();
         }
     };
 
@@ -308,8 +340,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mCameraTexture.getTransformMatrix(mTmpMatrix);
 
                 // Fill the SurfaceView with it.
-                int viewWidth = surfaceView.getWidth();
-                int viewHeight = surfaceView.getHeight();
+                int viewWidth = mSurfaceView.getWidth();
+                int viewHeight = mSurfaceView.getHeight();
                 //Log.i(TAG, "viewWidth = " + viewWidth + "   viewHeight = " + viewHeight);
                 GLES20.glViewport(0, 0, viewWidth, viewHeight);
                 mFullFrameBlit.drawFrame(mTextureId, mTmpMatrix);
@@ -317,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (isRecording) {
                     mEncoderSurface.makeCurrent();
-                    GLES20.glViewport(0, 0, WIDTH, HEIGHT);
+                    GLES20.glViewport(0, 0, mRecordContext.DESIRED_WIDTH, mRecordContext.DESIRED_HEIGHT);
                     mFullFrameBlit.drawFrame(mTextureId, mTmpMatrix);
                     mCircEncoder.frameAvailableSoon();
                     mEncoderSurface.setPresentationTime(mCameraTexture.getTimestamp());

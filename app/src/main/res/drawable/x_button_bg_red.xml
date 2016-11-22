@@ -1,0 +1,24 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 非触摸模式下获得焦点并单击时的背景图片 -->
+    <item android:state_pressed="true" >
+        <shape>
+            <solid android:color="@color/red_d" />
+            <corners android:topLeftRadius="35dp"
+                android:topRightRadius="35dp"
+                android:bottomRightRadius="35dp"
+                android:bottomLeftRadius="35dp"/>
+        </shape>
+
+    </item>
+    <!-- 默认时的背景图片-->
+    <item>
+        <shape>
+            <solid android:color="@color/red" />
+            <corners android:topLeftRadius="35dp"
+                android:topRightRadius="35dp"
+                android:bottomRightRadius="35dp"
+                android:bottomLeftRadius="35dp"/>
+        </shape>
+    </item>
+</selector>

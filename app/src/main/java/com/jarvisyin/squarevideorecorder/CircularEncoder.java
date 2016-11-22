@@ -10,7 +10,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -20,7 +19,7 @@ import java.nio.ByteBuffer;
  */
 public class CircularEncoder {
     private static final String TAG = "CircularEncoder";
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
 
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
     private static final int IFRAME_INTERVAL = 1;           // sync frame every second
@@ -29,6 +28,8 @@ public class CircularEncoder {
     private Surface mInputSurface;
     private MediaCodec mEncoder;
     private MediaMuxer mMuxer;
+
+    private final BlockInfo mBlockInfo;
 
     /**
      * Callback function definitions.  CircularEncoder caller must provide one.
@@ -46,30 +47,27 @@ public class CircularEncoder {
          * Called occasionally.
          *
          * @param totalTimeMsec Total length, in milliseconds, of buffered video.
+         * @param mFrameNum
          */
-        void bufferStatus(long totalTimeMsec);
+        void bufferStatus(long totalTimeMsec, int mFrameNum);
     }
 
     /**
      * Configures encoder, and prepares the input Surface.
      *
-     * @param desiredSpanSec How many seconds of video we want to have in our buffer at any time.
-     * @param width          Width of encoded video, in pixels.  Should be a multiple of 16.
-     * @param height         Height of encoded video, in pixels.  Usually a multiple of 16 (1080 is ok).
-     * @param bitRate        Target bit rate, in bits.
-     * @param frameRate      Expected frame rate.
-     * @param outputFile
+     * @param width     Width of encoded video, in pixels.  Should be a multiple of 16.
+     * @param height    Height of encoded video, in pixels.  Usually a multiple of 16 (1080 is ok).
+     * @param bitRate   Target bit rate, in bits.
+     * @param frameRate Expected frame rate.
      */
-    public CircularEncoder(int width, int height, int bitRate, int frameRate,
-                           Callback cb, File outputFile) throws IOException {
-
+    public CircularEncoder(int width, int height, int bitRate, int frameRate, Callback cb, BlockInfo fileInfo) throws IOException {
+        mBlockInfo = fileInfo;
 
         MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, width, height);
 
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
@@ -88,7 +86,7 @@ public class CircularEncoder {
         mEncoderThread.start();
         mEncoderThread.waitUntilReady();
 
-        mMuxer = new MediaMuxer(outputFile.getPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        mMuxer = new MediaMuxer(fileInfo.getVideoFile().getPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
     }
 
     /**
@@ -100,7 +98,7 @@ public class CircularEncoder {
 
     /**
      * Shuts down the encoder thread, and releases encoder resources.
-     * <p/>
+     * <p>
      * Does not return until the encoder thread has stopped.
      */
     public void shutdown() {
@@ -123,13 +121,13 @@ public class CircularEncoder {
 
     /**
      * Notifies the encoder thread that a new frame will shortly be provided to the encoder.
-     * <p/>
+     * <p>
      * There may or may not yet be data available from the encoder output.  The encoder
      * has a fair mount of latency due to processing, and it may want to accumulate a
      * few additional buffers before producing output.  We just need to drain it regularly
      * to avoid a situation where the producer gets wedged up because there's no room for
      * additional frames.
-     * <p/>
+     * <p>
      * If the caller sends the frame and then notifies us, it could get wedged up.  If it
      * notifies us first and then sends the frame, we guarantee that the output buffers
      * were emptied, and it will be impossible for a single additional frame to block
@@ -145,7 +143,7 @@ public class CircularEncoder {
      * Initiates saving the currently-buffered frames to the specified output file.  The
      * data will be written as a .mp4 file.  The call returns immediately.  When the file
      * save completes, the callback will be notified.
-     * <p/>
+     * <p>
      * The file generation is performed on the encoder thread, which means we won't be
      * draining the output buffers while this runs.  It would be wise to stop submitting
      * frames during this time.
@@ -158,7 +156,7 @@ public class CircularEncoder {
 
     /**
      * Object that encapsulates the encoder thread.
-     * <p/>
+     * <p>
      * We want to sleep until there's work to do.  We don't actually know when a new frame
      * arrives at the encoder, because the other thread is sending frames directly to the
      * input surface.  We will see data appear at the decoder output, so we can either use
@@ -166,7 +164,7 @@ public class CircularEncoder {
      * calling app wake us.  It's very useful to have all of the buffer management local to
      * this thread -- avoids synchronization -- so we want to do the file muxing in here.
      * So, it's best to sleep on an object and do something appropriate when awakened.
-     * <p/>
+     * <p>
      * This class does not manage the MediaCodec encoder startup/shutdown.  The encoder
      * should be fully started before the thread is created, and not shut down until this
      * thread has been joined.
@@ -193,7 +191,7 @@ public class CircularEncoder {
 
         /**
          * Thread entry point.
-         * <p/>
+         * <p>
          * Prepares the Looper, Handler, and signals anybody watching that we're ready to go.
          */
         @Override
@@ -217,7 +215,7 @@ public class CircularEncoder {
 
         /**
          * Waits until the encoder thread is ready to receive messages.
-         * <p/>
+         * <p>
          * Call from non-encoder thread.
          */
         public void waitUntilReady() {
@@ -299,11 +297,16 @@ public class CircularEncoder {
 
                         mMuxer.writeSampleData(videoTrack, encodedData, mBufferInfo);
 
+                        if (mBlockInfo.getStartTime() == 0) {
+                            mBlockInfo.setStartTime(mBufferInfo.presentationTimeUs);
+                        }
+                        mBlockInfo.setStopTime(mBufferInfo.presentationTimeUs);
+
                         if (VERBOSE) {
-                            Log.d(TAG, "sent " + mBufferInfo.size + " bytes to muxer, ts=" +
-                                    mBufferInfo.presentationTimeUs);
+                            Log.d(TAG, "sent " + mBufferInfo.size + " bytes to muxer, ts=" + mBlockInfo.getTimeSpan() / 1000000L);
                         }
                     }
+
 
                     mEncoder.releaseOutputBuffer(encoderStatus, false);
 
@@ -315,9 +318,11 @@ public class CircularEncoder {
             }
         }
 
+        long fuck = 0;
+
         /**
          * Drains the encoder output.
-         * <p/>
+         * <p>
          * See notes for {@link CircularEncoder#frameAvailableSoon()}.
          */
         void frameAvailableSoon() {
@@ -325,19 +330,18 @@ public class CircularEncoder {
             drainEncoder();
 
             mFrameNum++;
-            if ((mFrameNum % 10) == 0) {        // TODO: should base off frame rate or clock?
-                //mCallback.bufferStatus(mEncBuffer.computeTimeSpanUsec());
-            }
+            mCallback.bufferStatus(mBlockInfo.getTimeSpan(), mFrameNum);// / 1000000000000L
+
         }
 
         /**
          * Saves the encoder output to a .mp4 file.
-         * <p/>
+         * <p>
          * We'll drain the encoder to get any lingering data, but we're not going to shut
          * the encoder down or use other tricks to try to "flush" the encoder.  This may
          * mean we miss the last couple of submitted frames if they're still working their
          * way through.
-         * <p/>
+         * <p>
          * We may want to reset the buffer after this -- if they hit "capture" again right
          * away they'll end up saving video with a gap where we paused to write the file.
          */
@@ -365,7 +369,7 @@ public class CircularEncoder {
         /**
          * Handler for EncoderThread.  Used for messages sent from the UI thread (or whatever
          * is driving the encoder) to the encoder thread.
-         * <p/>
+         * <p>
          * The object is created on the encoder thread.
          */
         private class EncoderHandler extends Handler {

@@ -14,9 +14,9 @@ import java.nio.ByteBuffer;
  */
 public class MuxerAudioVideo {
     private static final String TAG = "MuxerAudioVedio";
-    private FileInfo mFileInfo;
+    private BlockInfo mFileInfo;
 
-    public void setFileInfo(FileInfo fileInfo) {
+    public void setFileInfo(BlockInfo fileInfo) {
         mFileInfo = fileInfo;
     }
 
