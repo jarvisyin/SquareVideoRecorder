@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Gles;
+package com.jarvisyin.squarevideorecorder.Record.Gles;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;

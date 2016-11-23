@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jarvisyin.squarevideorecorder.Gles;
+package com.jarvisyin.squarevideorecorder.Record.Gles;
 
 import android.app.Activity;
 import android.hardware.Camera;

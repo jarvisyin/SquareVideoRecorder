@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Gles;
+package com.jarvisyin.squarevideorecorder.Record.Gles;
 
 /**
  * This class essentially represents a viewport-sized sprite that will be rendered with

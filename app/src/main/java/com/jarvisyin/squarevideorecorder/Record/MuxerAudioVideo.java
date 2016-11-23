@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Record;
 
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
@@ -6,6 +6,8 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.jarvisyin.squarevideorecorder.BlockInfo;
 
 import java.nio.ByteBuffer;
 
@@ -24,6 +26,11 @@ public class MuxerAudioVideo {
         MediaMuxer muxer = null;
         MediaExtractor audioExtractor;
         MediaExtractor videoExtractor;
+
+        Log.i(TAG, String.format("AudioFile = %s  ,  VideoFile = %s",
+                mFileInfo.getAudioFile().getPath(),
+                mFileInfo.getVideoFile().getPath()));
+
         try {
             audioExtractor = new MediaExtractor();
             audioExtractor.setDataSource(mFileInfo.getAudioFile().getPath());

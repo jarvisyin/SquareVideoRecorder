@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Gles;
+package com.jarvisyin.squarevideorecorder.Record.Gles;
 
 /**
  * Created by jarvisyin on 16/11/17.

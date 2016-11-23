@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Utils;
+package com.jarvisyin.squarevideorecorder.Common.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;

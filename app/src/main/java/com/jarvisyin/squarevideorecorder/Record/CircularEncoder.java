@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder;
+package com.jarvisyin.squarevideorecorder.Record;
 
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -9,6 +9,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
+
+import com.jarvisyin.squarevideorecorder.BlockInfo;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;

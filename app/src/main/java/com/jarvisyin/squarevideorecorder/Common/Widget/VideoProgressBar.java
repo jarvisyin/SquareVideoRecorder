@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Widget;
+package com.jarvisyin.squarevideorecorder.Common.Widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,9 +8,9 @@ import android.util.Log;
 import android.view.View;
 
 import com.jarvisyin.squarevideorecorder.BlockInfo;
+import com.jarvisyin.squarevideorecorder.MainActivity;
 import com.jarvisyin.squarevideorecorder.R;
-import com.jarvisyin.squarevideorecorder.RecordContext;
-import com.jarvisyin.squarevideorecorder.Utils.DisplayUtils;
+import com.jarvisyin.squarevideorecorder.Common.Utils.DisplayUtils;
 
 import java.util.List;
 
@@ -28,7 +28,6 @@ public class VideoProgressBar extends View {
     private int dp1;
 
     private Paint paint = new Paint();
-    private RecordContext mRecordContext;
 
 
     public VideoProgressBar(Context context, AttributeSet attrs) {
@@ -48,8 +47,13 @@ public class VideoProgressBar extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mRecordContext == null) return;
-        List<BlockInfo> blockInfos = mRecordContext.getBlockInfos();
+
+        if (!(getContext() instanceof MainActivity)) {
+            return;
+        }
+        MainActivity mContext = (MainActivity)getContext();
+        
+        List<BlockInfo> blockInfos = mContext.getBlockInfos();
         if (blockInfos == null || blockInfos.isEmpty()) return;
 
         final float width = canvas.getWidth();
@@ -59,7 +63,7 @@ public class VideoProgressBar extends View {
         paint.setColor(greyColor);
         canvas.drawColor(greyColor);
 
-        final float whiteLinePercent = mRecordContext.lessTimeSpan * 1.0f / mRecordContext.wholeTimeSpan;
+        final float whiteLinePercent = mContext.lessTimeSpan * 1.0f / mContext.wholeTimeSpan;
         paint.setColor(whiteColor);
         canvas.drawLine(width * whiteLinePercent - dp1, height / 2, width * whiteLinePercent, height / 2, paint);
 
@@ -68,10 +72,10 @@ public class VideoProgressBar extends View {
         paint.setColor(orangeColor);
         for (BlockInfo block : blockInfos) {
 
-            p1 = sum * 1.0f / mRecordContext.wholeTimeSpan;
+            p1 = sum * 1.0f / mContext.wholeTimeSpan;
 
             sum = sum + (block.getTimeSpan());
-            p2 = sum * 1.0f / mRecordContext.wholeTimeSpan;
+            p2 = sum * 1.0f / mContext.wholeTimeSpan;
 
             Log.i(TAG, "p1 = " + p1 + " p2 = " + p2 + " sum = " + sum + "  block.getTimeSpan() = " + block.getTimeSpan());
 
@@ -79,7 +83,4 @@ public class VideoProgressBar extends View {
         }
     }
 
-    public void setRecordContext(RecordContext recordContext) {
-        this.mRecordContext = recordContext;
-    }
 }

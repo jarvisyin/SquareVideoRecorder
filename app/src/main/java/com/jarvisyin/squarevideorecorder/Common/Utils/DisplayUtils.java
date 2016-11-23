@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Utils;
+package com.jarvisyin.squarevideorecorder.Common.Utils;
 
 import android.content.Context;
 import android.graphics.Point;
