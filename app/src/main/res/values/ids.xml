@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="line" type="id" />
     <item name="back" type="id" />
     <item name="content" type="id" />
     <item name="item" type="id" />

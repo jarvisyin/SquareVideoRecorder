@@ -13,13 +13,16 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 
 import com.jarvisyin.squarevideorecorder.BlockInfo;
 import com.jarvisyin.squarevideorecorder.Common.Component.Fragment.BaseFragment;
 import com.jarvisyin.squarevideorecorder.Common.Utils.JToast;
+import com.jarvisyin.squarevideorecorder.Common.Widget.VideoActionButton;
 import com.jarvisyin.squarevideorecorder.Common.Widget.VideoProgressBar;
 import com.jarvisyin.squarevideorecorder.MainActivity;
+import com.jarvisyin.squarevideorecorder.Play.PlayFragment;
 import com.jarvisyin.squarevideorecorder.R;
 import com.jarvisyin.squarevideorecorder.Record.Gles.CameraUtils;
 import com.jarvisyin.squarevideorecorder.Record.Gles.Drawable2d;
@@ -32,13 +35,13 @@ import com.jarvisyin.squarevideorecorder.Record.Gles.WindowSurface;
 /**
  * Created by Jarvis.
  */
-public class RecordFragment extends BaseFragment implements View.OnTouchListener {
+public class RecordFragment extends BaseFragment implements View.OnClickListener, VideoActionButton.ActionListener {
     public static final String TAG = RecordFragment.class.getName();
 
 
     private int mCameraPreviewThousandFps;
 
-    private Button btnRecord;
+    private VideoActionButton btnRecord;
 
     private SurfaceView mSurfaceView;
     private SurfaceCallback mSurfaceCallback;
@@ -54,8 +57,10 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
 
     private boolean isRecording = false;
     private AudioRecord mAudioRecord;
-    //private MuxerAudioVideo mMuxerAudioVideo;
     private VideoProgressBar mVideoProgressBar;
+    private Button btnNext;
+
+    private EncoderCallback mEncoderCallback = new EncoderCallback();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,8 +82,11 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
         mSurfaceCallback = new SurfaceCallback();
         mSurfaceView.getHolder().addCallback(mSurfaceCallback);
 
-        btnRecord = (Button) view.findViewById(R.id.record);
-        btnRecord.setOnTouchListener(this);
+        btnRecord = (VideoActionButton) view.findViewById(R.id.record);
+        btnRecord.setActionListener(this);
+
+        btnNext = (Button) view.findViewById(R.id.next);
+        btnNext.setOnClickListener(this);
 
         mVideoProgressBar = (VideoProgressBar) view.findViewById(R.id.video_progress_bar);
 
@@ -86,21 +94,16 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                startRecord();
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                stopRecord();
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.next:
+                getBaseActivity().addFragmentWithAnim(new PlayFragment());
                 break;
         }
-        return false;
     }
 
-    private void startRecord() {
-        Log.i(TAG, "startRecord = 0");
+    @Override
+    public void startRecord() {
         if (isRecording)
             return;
 
@@ -126,31 +129,25 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
             e.printStackTrace();
             JToast.show("Unable to record");
         }
-
-        Log.i(TAG, "startRecord = 1 ," + isRecording);
     }
 
-    private void stopRecord() {
+    @Override
+    public void stopRecord() {
 
-        Log.i(TAG, "stopRecord = 0");
         if (!isRecording)
             return;
 
         try {
-            mAudioRecord.stop();
             mCircEncoder.saveVideo();
+            mAudioRecord.stop();
 
             isRecording = false;
 
-            /*mMuxerAudioVideo.setFileInfo(mRecordContext.getLastFileInfo());
-            mMuxerAudioVideo.start();*/
-
+            mCircEncoder.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
             JToast.show("Unable to record");
         }
-
-        Log.i(TAG, "stopRecord = 1 ," + isRecording);
     }
 
     @Override
@@ -167,8 +164,8 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         mContext = null;
     }
 
@@ -242,21 +239,27 @@ public class RecordFragment extends BaseFragment implements View.OnTouchListener
         }
     }
 
-    private CircularEncoder.Callback mEncoderCallback = new CircularEncoder.Callback() {
+
+    private class EncoderCallback implements CircularEncoder.Callback, Runnable {
         @Override
         public void fileSaveComplete(int status) {
-            JToast.show("录制成功");
+            //JToast.show("录制成功");
         }
 
         @Override
-        public void bufferStatus(long totalTimeMsec, int frameNum) {
-            getView().post(refreshProgressBar);
+        public void bufferStatus(long totalTimeMesec, int frameNum) {
+            mHandler.post(refreshProgressBar);
             if (mContext.getCurrentWholeTimeSpan() > mContext.wholeTimeSpan) {
+                mHandler.post(this);
                 stopRecord();
             }
-
         }
-    };
+
+        @Override
+        public void run() {
+            btnRecord.setEnabled(false);
+        }
+    }
 
     private Runnable refreshProgressBar = new Runnable() {
         @Override

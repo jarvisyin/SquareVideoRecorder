@@ -1,13 +1,13 @@
 package com.jarvisyin.squarevideorecorder.Play;
 
-import android.content.Context;
 import android.os.Bundle;
-
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.jarvisyin.squarevideorecorder.Common.Component.Fragment.BaseFragment;
+import com.jarvisyin.squarevideorecorder.MainActivity;
 import com.jarvisyin.squarevideorecorder.R;
 
 /**
@@ -15,30 +15,12 @@ import com.jarvisyin.squarevideorecorder.R;
  */
 public class PlayFragment extends BaseFragment {
     public static final String TAG = PlayFragment.class.getName();
+    private MainActivity mContext;
 
-
-    private String par1;
-
-    private OnFragmentInteractionListener mListener;
-
-    public PlayFragment() {
-
-    }
-
-    public static PlayFragment newInstance(String par1) {
-        PlayFragment fragment = new PlayFragment();
-        Bundle args = new Bundle();
-        args.putString("par1", par1);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            par1 = getArguments().getString("par1");
-        }
     }
 
     @Override
@@ -47,28 +29,21 @@ public class PlayFragment extends BaseFragment {
         return view;
     }
 
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        }
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //mSurfaceView = view.findViewById(R.id.surface_view);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onResume() {
+        super.onResume();
+        mContext = (MainActivity) getBaseActivity();
     }
 
-    public void onButtonPressed(String TAG) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(TAG);
-        }
-    }
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(String TAG);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mContext = null;
     }
 }
