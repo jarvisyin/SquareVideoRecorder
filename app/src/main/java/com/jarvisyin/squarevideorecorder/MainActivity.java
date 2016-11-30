@@ -49,14 +49,19 @@ public class MainActivity extends BaseActivity {
         addFragmentWhenActStart(new RecordFragment());
     }
 
-    public BlockInfo createFileInfo() {
+    public BlockInfo createBlockInfo() {
         File file = new File(mFileStore, getRandom());
         if (!file.exists()) {
             file.mkdirs();
         }
-        BlockInfo fileInfo = new BlockInfo(file);
-        mBlockInfos.add(fileInfo);
-        return fileInfo;
+        BlockInfo blockInfo = new BlockInfo(file);
+        mBlockInfos.add(blockInfo);
+        return blockInfo;
+    }
+
+    public void deleteBlockInfo() {
+        if (mBlockInfos != null && !mBlockInfos.isEmpty())
+            mBlockInfos.remove(mBlockInfos.size() - 1);
     }
 
     public BlockInfo getLastFileInfo() {

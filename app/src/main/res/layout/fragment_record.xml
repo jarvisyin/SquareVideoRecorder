@@ -33,6 +33,13 @@
         android:paddingLeft="@dimen/app_padding"
         android:paddingRight="@dimen/app_padding">
 
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="删除" />
+
         <com.jarvisyin.squarevideorecorder.Common.Widget.VideoActionButton
             android:id="@+id/record"
             android:layout_width="70dp"

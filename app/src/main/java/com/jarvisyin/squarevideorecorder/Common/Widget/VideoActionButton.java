@@ -21,7 +21,6 @@ public class VideoActionButton extends View {
     private int mColorYellowN, mColorYellowP, mColorRed;
     private Paint mPaint;
 
-
     private final int TOUCH_IN_RECORD = 1;
     private final int TOUCH_OUT_RECORD = 2;
     private final int TOUCH_OUT_UNRECORD = 3;

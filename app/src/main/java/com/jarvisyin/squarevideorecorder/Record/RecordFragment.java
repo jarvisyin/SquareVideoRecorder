@@ -8,12 +8,10 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.Button;
 
 import com.jarvisyin.squarevideorecorder.BlockInfo;
@@ -38,7 +36,6 @@ import com.jarvisyin.squarevideorecorder.Record.Gles.WindowSurface;
 public class RecordFragment extends BaseFragment implements View.OnClickListener, VideoActionButton.ActionListener {
     public static final String TAG = RecordFragment.class.getName();
 
-
     private int mCameraPreviewThousandFps;
 
     private VideoActionButton btnRecord;
@@ -58,7 +55,7 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
     private boolean isRecording = false;
     private AudioRecord mAudioRecord;
     private VideoProgressBar mVideoProgressBar;
-    private Button btnNext;
+    private Button btnNext, btnDelete;
 
     private EncoderCallback mEncoderCallback = new EncoderCallback();
 
@@ -87,6 +84,8 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
 
         btnNext = (Button) view.findViewById(R.id.next);
         btnNext.setOnClickListener(this);
+        btnDelete = (Button) view.findViewById(R.id.delete);
+        btnDelete.setOnClickListener(this);
 
         mVideoProgressBar = (VideoProgressBar) view.findViewById(R.id.video_progress_bar);
 
@@ -98,6 +97,10 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.next:
                 getBaseActivity().addFragmentWithAnim(new PlayFragment());
+                break;
+            case R.id.delete:
+                mVideoProgressBar.invalidate();
+                mContext.deleteBlockInfo();
                 break;
         }
     }
@@ -111,7 +114,7 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
             return;
 
         try {
-            BlockInfo blockInfo = mContext.createFileInfo();
+            BlockInfo blockInfo = mContext.createBlockInfo();
             mAudioRecord.prepare(blockInfo.getAudioFile().getPath());
             mAudioRecord.start();
 
