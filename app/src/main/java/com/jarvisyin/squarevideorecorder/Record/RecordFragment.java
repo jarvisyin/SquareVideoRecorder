@@ -96,7 +96,7 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                getBaseActivity().addFragmentWithAnim(new PlayFragment());
+                getBaseActivity().replaceFragmentWithAnim(new PlayFragment());
                 break;
             case R.id.delete:
                 mVideoProgressBar.invalidate();

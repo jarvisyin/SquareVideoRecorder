@@ -156,12 +156,12 @@ class FragmentController {
     }
 
     private static void setAddAnimation(FragmentTransaction transaction) {
-        //transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
     }
 
 
     private static void setRemoveAnimation(FragmentTransaction transaction) {
-        //transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+        transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
     }
 
     public void release() {
