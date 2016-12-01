@@ -4,6 +4,8 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.jarvisyin.squarevideorecorder.Common.Utils.ShaderUtils;
+
 import java.nio.FloatBuffer;
 
 /**

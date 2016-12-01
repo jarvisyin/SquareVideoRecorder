@@ -1,4 +1,4 @@
-package com.jarvisyin.squarevideorecorder.Record.Gles;
+package com.jarvisyin.squarevideorecorder.Common.Utils;
 
 /**
  * Created by jarvisyin on 16/11/17.
@@ -142,10 +142,8 @@ public class ShaderUtils {
 
         // Configure min/mag filtering, i.e. what scaling method do we use if what we're rendering
         // is smaller or larger than the source image.
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
         ShaderUtils.checkGlError("loadImageTexture");
 
         // Load the data from the buffer into the texture handle.

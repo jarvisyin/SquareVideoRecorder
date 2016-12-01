@@ -20,7 +20,7 @@ import com.jarvisyin.squarevideorecorder.Common.Utils.JToast;
 import com.jarvisyin.squarevideorecorder.Common.Widget.VideoActionButton;
 import com.jarvisyin.squarevideorecorder.Common.Widget.VideoProgressBar;
 import com.jarvisyin.squarevideorecorder.MainActivity;
-import com.jarvisyin.squarevideorecorder.Play.PlayFragment;
+import com.jarvisyin.squarevideorecorder.Edit.EditFragment;
 import com.jarvisyin.squarevideorecorder.R;
 import com.jarvisyin.squarevideorecorder.Record.Gles.CameraUtils;
 import com.jarvisyin.squarevideorecorder.Record.Gles.Drawable2d;
@@ -88,7 +88,6 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
         btnDelete.setOnClickListener(this);
 
         mVideoProgressBar = (VideoProgressBar) view.findViewById(R.id.video_progress_bar);
-
         mAudioRecord = new AudioRecord();
     }
 
@@ -96,7 +95,7 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                getBaseActivity().replaceFragmentWithAnim(new PlayFragment());
+                getBaseActivity().replaceFragmentWithAnim(new EditFragment());
                 break;
             case R.id.delete:
                 mVideoProgressBar.invalidate();
@@ -262,13 +261,13 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
             mHandler.post(refreshProgressBar);
             if (mContext.getCurrentWholeTimeSpan() > mContext.wholeTimeSpan) {
                 mHandler.post(this);
-                stopRecord();
             }
         }
 
         @Override
         public void run() {
             btnRecord.setEnabled(false);
+            stopRecord();
         }
     }
 

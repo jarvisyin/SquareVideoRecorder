@@ -15,8 +15,8 @@ public class BlockInfo {
 
 
     public BlockInfo(File parent) {
-        audioFile = new File(parent, "audio");
-        videoFile = new File(parent, "video");
+        audioFile = new File(parent, "audio.m4a");
+        videoFile = new File(parent, "video.mp4");
         resultFile = new File(parent, "result.mp4");
     }
 

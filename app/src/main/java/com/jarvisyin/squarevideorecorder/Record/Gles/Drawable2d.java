@@ -6,6 +6,8 @@ package com.jarvisyin.squarevideorecorder.Record.Gles;
 
 import android.util.Log;
 
+import com.jarvisyin.squarevideorecorder.Common.Utils.ShaderUtils;
+
 import java.nio.FloatBuffer;
 
 /**

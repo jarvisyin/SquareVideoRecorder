@@ -63,8 +63,9 @@ public class ActionBar extends LinearLayout {
     }
 
     private void init(Context context) {
-        setBackgroundColor(0xffffffff);
-        textColor0 = context.getResources().getColor(R.color.text_color0);
+        setBackgroundColor(0xff131313);
+        //textColor0 = context.getResources().getColor(R.color.text_color0);
+        textColor0 = 0xffffffff;
         appPadding = (int) (context.getResources().getDimension(R.dimen.app_padding) + 0.5f);
         actionBarHeight = (int) (context.getResources().getDimension(R.dimen.action_bar_height) + 0.5f);
 
@@ -113,7 +114,7 @@ public class ActionBar extends LinearLayout {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 1);
         rParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        line.setBackgroundResource(R.color.action_bar_line_color);
+        //line.setBackgroundResource(R.color.action_bar_line_color);
         relativeLayout.addView(line, rParams);
     }
 
