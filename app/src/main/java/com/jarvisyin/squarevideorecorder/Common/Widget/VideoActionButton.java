@@ -22,9 +22,10 @@ public class VideoActionButton extends View {
     private Paint mPaint;
 
     private final int TOUCH_IN_RECORD = 1;
-    private final int TOUCH_OUT_RECORD = 2;
-    private final int TOUCH_OUT_UNRECORD = 3;
-    private final int UNABLE_RECORD = 4;
+    private final int TOUCH_IN_UNRECORD = 2;
+    private final int TOUCH_OUT_RECORD = 3;
+    private final int TOUCH_OUT_UNRECORD = 4;
+    private final int UNABLE_RECORD = 5;
 
     private int statu = TOUCH_OUT_UNRECORD;
 
@@ -69,7 +70,9 @@ public class VideoActionButton extends View {
 
         int color = 0;
 
-        if (statu == TOUCH_OUT_UNRECORD || statu == UNABLE_RECORD) {
+        if (statu == TOUCH_OUT_UNRECORD ||
+                statu == UNABLE_RECORD ||
+                statu == TOUCH_IN_UNRECORD) {
             color = mColorYellowN;
         } else if (statu == TOUCH_IN_RECORD) {
             color = mColorYellowP;
@@ -97,13 +100,12 @@ public class VideoActionButton extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.i(TAG, "statu = " + statu);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (statu == TOUCH_OUT_UNRECORD) {
                     actionTime = AnimationUtils.currentAnimationTimeMillis();
-                    mActionListener.startRecord();
                     statu = TOUCH_IN_RECORD;
+                    if (mActionListener != null) mActionListener.startRecord();
                     invalidate();
                 }
                 break;
@@ -115,16 +117,18 @@ public class VideoActionButton extends View {
                         statu = TOUCH_OUT_RECORD;
                     } else {
                         statu = TOUCH_OUT_UNRECORD;
-                        mActionListener.stopRecord();
+                        if (mActionListener != null) mActionListener.stopRecord();
                     }
                     invalidate();
                 } else if (statu == TOUCH_OUT_RECORD) {
                     long stopTime = AnimationUtils.currentAnimationTimeMillis();
                     if (stopTime - actionTime > 1000) {
                         statu = TOUCH_OUT_UNRECORD;
-                        mActionListener.stopRecord();
+                        if (mActionListener != null) mActionListener.stopRecord();
                         invalidate();
                     }
+                } else if (TOUCH_IN_UNRECORD == statu) {
+                    statu = TOUCH_OUT_UNRECORD;
                 }
                 break;
         }
@@ -139,12 +143,20 @@ public class VideoActionButton extends View {
         } else {
             statu = UNABLE_RECORD;
         }
-        Log.i(TAG, "statu = " + statu);
         invalidate();
     }
 
     public void setActionListener(ActionListener actionListener) {
         mActionListener = actionListener;
+    }
+
+    public void startFail() {
+        if (statu == TOUCH_IN_RECORD) {
+            statu = TOUCH_IN_UNRECORD;
+        } else if (statu == TOUCH_OUT_RECORD) {
+            statu = TOUCH_OUT_UNRECORD;
+        }
+        invalidate();
     }
 
     public interface ActionListener {

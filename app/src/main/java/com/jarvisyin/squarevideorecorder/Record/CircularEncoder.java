@@ -50,6 +50,8 @@ public class CircularEncoder {
         mInputSurface = mEncoder.createInputSurface();
         mEncoder.start();
 
+        //TODO try to reset encoder;
+
         mEncoderThread = new EncoderThread(mEncoder, cb);
         mEncoderThread.start();
         mEncoderThread.waitUntilReady();

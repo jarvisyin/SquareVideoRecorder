@@ -101,6 +101,7 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
             case R.id.delete:
                 mVideoProgressBar.invalidate();
                 mContext.deleteBlockInfo();
+                btnRecord.setEnabled(true);
                 break;
         }
     }
@@ -131,6 +132,13 @@ public class RecordFragment extends BaseFragment implements View.OnClickListener
         } catch (Exception e) {
             e.printStackTrace();
             JToast.show("Unable to record");
+
+            btnRecord.startFail();
+            try {
+                mCircEncoder.shutdown();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
