@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="line" type="id" />
-    <item name="back" type="id" />
     <item name="content" type="id" />
     <item name="item" type="id" />
     <item name="item_id" type="id" />
-    <item name="item_type" type="id" />
-    <item name="item_holder" type="id" />
-    <item name="item_position" type="id" />
-    <item name="item_operation" type="id" />
 </resources>

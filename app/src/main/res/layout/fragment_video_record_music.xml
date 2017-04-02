@@ -1,0 +1,17 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.jarvisyin.recorder.Home.VideoRecord.Common.Widget.ActionBar xmlns:vshopbuyer="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar_height"
+        vshopbuyer:rightBtnText="完成"
+        vshopbuyer:title="选择音乐" />
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

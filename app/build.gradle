@@ -1,27 +1,64 @@
 apply plugin: 'com.android.application'
 
+
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 22
+    buildToolsVersion "23.0.2"
+
 
     defaultConfig {
         applicationId "com.jarvisyin.squarevideorecorder"
         minSdkVersion 18
-        targetSdkVersion 24
-        versionCode 1
+        targetSdkVersion 18
+        versionCode 2
         versionName "1.0"
+        multiDexEnabled true
+
+        ndk {
+            abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a', 'x86'
+        }
     }
+
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
+
+    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
+
+    /**
+     * http://writingminds.github.io/ffmpeg-android-java/
+     * 此库转码速度慢.
+     *
+     * 官方指南所使用的库,但不可用.
+     * compile 'com.writingminds:FFmpegAndroid:0.3.2'
+     *
+     * 另一个版本,可用.
+     * compile 'com.github.hiteshsondhi88.libffmpeg:FFmpegAndroid:0.2.5'
+     */
+    compile 'com.github.hiteshsondhi88.libffmpeg:FFmpegAndroid:0.2.5'
+
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'org.xutils:xutils:3.3.36'
 }

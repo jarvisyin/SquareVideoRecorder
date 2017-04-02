@@ -4,13 +4,30 @@
     <color name="yellow_d">#eFcD54</color>
 
     <color name="red">#FF4300</color>
-    <color name="red_d">#dF2300</color>
-
 
     <color name="text_color0">#322100</color>
 
-    <color name="button_gray_dark_bg0">#1fffffff</color>
+    <color name="text_color_hint">#c6c6c6</color>
+
+    <color name="thin_separate_line_color">#E0E0E0</color>
+
+    <color name="window_background">#F8F6F3</color>
+
     <color name="action_bar_line_color">#C9C9C9</color>
+
+    <color name="button_gray_dark_bg1">#10000000</color>
+    <color name="button_gray_dark_bg0">#1fffffff</color>
+
     <color name="toast_bg">#a0000000</color>
-    <color name="window_background">#000000</color>
+
+    <color name="dialog_bg">#eeffffff</color>
+    <color name="dialog_btn_bg">#1E82FF</color>
+
+
+    <color name="video_window_background">#1A1A1A</color>
+    <color name="video_action_bar_bg">#131313</color>
+    <color name="video_text_color">#ADADAD</color>
+
+
+
 </resources>

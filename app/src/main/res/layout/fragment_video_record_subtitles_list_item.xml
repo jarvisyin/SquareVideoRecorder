@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="@dimen/app_padding">
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginRight="@dimen/app_padding"
+        android:src="@color/yellow" />
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/image_view"
+        android:background="#ffffff"
+        android:hint="请填写字幕"
+        android:padding="5dp"
+        android:singleLine="true"
+        android:textSize="14dp" />
+
+</RelativeLayout>

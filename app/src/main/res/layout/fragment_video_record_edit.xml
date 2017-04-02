@@ -1,0 +1,140 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/video_window_background"
+    android:orientation="vertical">
+
+
+    <com.jarvisyin.recorder.Home.VideoRecord.Common.Widget.ActionBar xmlns:vshopbuyer="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar_height"
+        vshopbuyer:rightBtnText="保存"
+        vshopbuyer:title="视频编辑" />
+
+    <com.jarvisyin.recorder.Common.Widget.SquareView.SquareFrameLayout
+        android:id="@+id/square_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/action_bar" />
+
+
+    <LinearLayout
+        android:id="@+id/operation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/square_layout"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/app_padding"
+        android:paddingRight="@dimen/app_padding"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="商品模版"
+            android:textColor="@color/video_text_color" />
+
+        <FrameLayout
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="@dimen/app_padding"
+            android:background="@drawable/x_video_edit_black_pot">
+
+            <View
+                android:id="@+id/explain"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/video_edit_choice_subtitles" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/x_video_edit_black_pot">
+
+            <View
+                android:id="@+id/music"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/video_edit_choice_music" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/operation_layout"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/app_padding"
+        android:paddingRight="@dimen/app_padding">
+
+        <View
+            android:layout_width="70dp"
+            android:layout_height="3dp"
+            android:background="@color/yellow" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/thin_separate_line_color" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:background="@drawable/video_edit_no_model">
+
+                    <com.jarvisyin.recorder.Common.Widget.RadiusView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:textColor="@color/video_text_color"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12dp"
+                    android:paddingTop="8dp"
+                    android:text="无模版" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/action_bar"
+        android:background="#000000"
+        android:visibility="gone">
+
+
+        <ProgressBar
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+
+</RelativeLayout>

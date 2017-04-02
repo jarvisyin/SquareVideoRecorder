@@ -1,12 +1,50 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <!-- Customize your theme here. -->
-
+    <style name="AppTheme" parent="android:Theme.Light"><!--Theme.AppCompat.Light-->
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
 
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColorHint">@color/text_color_hint</item>
+        <item name="android:dialogTheme">@style/dialogStyle</item>
+
+        <item name="android:screenOrientation">portrait</item>
+
+        <item name="android:progressBarStyle">@style/progressBarGray</item>
+        <item name="android:textColorSecondary">@color/text_color0</item>
+
+        <item name="android:windowAnimationStyle">@style/AnimationActivity</item>
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+
+    <style name="progressBarWhite" parent="@android:style/Widget.ProgressBar.Inverse">
+        <item name="android:indeterminateDrawable">@drawable/x_progress_bar_dialog</item>
+    </style>
+
+    <style name="progressBarGray" parent="@android:style/Widget.ProgressBar.Inverse">
+        <item name="android:indeterminateDrawable">@drawable/x_progress_bar_common</item>
+    </style>
+
+    <style name="AnimationActivity" mce_bogus="1" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/enter_from_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/exit_to_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/enter_from_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/exit_to_right</item>
+    </style>
+
+    <style name="dialogStyle" parent="@style/AppTheme">
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:progressBarStyle">@style/progressBarWhite</item>
     </style>
 
 </resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="@dimen/app_padding">
+
+    <CheckBox
+        android:id="@+id/check_box"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:button="@null"
+        android:background="@drawable/x_video_edit_music_checkbox"
+        android:layout_gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:textColor="@color/video_text_color"
+        android:layout_marginLeft="@dimen/app_padding"
+        android:text="这里写的是歌名" />
+
+</LinearLayout>
