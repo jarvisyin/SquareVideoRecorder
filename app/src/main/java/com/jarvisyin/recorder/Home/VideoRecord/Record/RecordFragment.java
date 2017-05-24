@@ -23,7 +23,7 @@ import com.jarvisyin.recorder.Home.VideoRecord.Common.VideoBaseFragment;
 import com.jarvisyin.recorder.Home.VideoRecord.Common.Widget.VideoActionButton;
 import com.jarvisyin.recorder.Home.VideoRecord.Common.Widget.VideoProgressBar;
 import com.jarvisyin.recorder.Home.VideoRecord.Edit.EditFragment;
-import com.jarvisyin.recorder.Home.VideoRecord.Edit.RecordFinishProcessor;
+import com.jarvisyin.recorder.Home.VideoRecord.Edit.MediaMuxerRecordFinishProcessor;
 import com.jarvisyin.recorder.Home.VideoRecord.Record.Gles.CameraUtils;
 import com.jarvisyin.recorder.Home.VideoRecord.Record.Gles.Drawable2d;
 import com.jarvisyin.recorder.Home.VideoRecord.Record.Gles.EglCore;
@@ -49,6 +49,7 @@ public class RecordFragment extends VideoBaseFragment implements View.OnClickLis
 
     private SurfaceView mSurfaceView;
     private SurfaceCallback mSurfaceCallback;
+    private Drawable2d drawable2d = new Drawable2d();
 
     private Camera mCamera;
 
@@ -107,9 +108,9 @@ public class RecordFragment extends VideoBaseFragment implements View.OnClickLis
         switch (v.getId()) {
             case R.id.next:
                 dialog.show();
-                new RecordFinishProcessor(mContext) {
+                new MediaMuxerRecordFinishProcessor(mContext) {
                     @Override
-                    public void onSuccess(String message) {
+                    public void onSuccess() {
                         dialog.dismiss();
                         getBaseActivity().replaceFragmentWithAnim(new EditFragment());
                     }
@@ -306,7 +307,7 @@ public class RecordFragment extends VideoBaseFragment implements View.OnClickLis
 
         //6. 设置渲染器宽高
         Camera.Size previewSize = parameters.getPreviewSize();
-        Drawable2d.getInstance().setCoords(previewSize.width, previewSize.height, orientation);
+        drawable2d.setCoords(previewSize.width, previewSize.height, orientation);
 
         JYLog.i(TAG, "width = %s , height = %s , orientation = %s , fps = %s",
                 previewSize.width,
@@ -314,6 +315,7 @@ public class RecordFragment extends VideoBaseFragment implements View.OnClickLis
                 orientation,
                 mCameraPreviewThousandFps);
     }
+
 
     private void releaseCamera() {
         if (mCamera != null) {
@@ -399,7 +401,7 @@ public class RecordFragment extends VideoBaseFragment implements View.OnClickLis
                 mDisplaySurface = new WindowSurface(mEglCore, holder.getSurface(), false);
                 mDisplaySurface.makeCurrent();
 
-                mFullFrameBlit = new FullFrameRect(new Texture2dProgram());
+                mFullFrameBlit = new FullFrameRect(new Texture2dProgram(),drawable2d);
                 mTextureId = mFullFrameBlit.createTextureObject();
                 mCameraTexture = new SurfaceTexture(mTextureId);
                 mCameraTexture.setOnFrameAvailableListener(new OnFrameAvailableListener());
